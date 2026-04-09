@@ -1,10 +1,7 @@
-def print_board(board):
-    for row in board:
-        print(" | ".join(row))
-        print("-" * 5)
+import tkinter as tk
+from tkinter import messagebox
 
 def check_winner(board):
-    # Check rows, columns, diagonals
     for i in range(3):
         if board[i][0] == board[i][1] == board[i][2] != " ":
             return board[i][0]
@@ -19,34 +16,58 @@ def check_winner(board):
 def is_full(board):
     return all(cell != " " for row in board for cell in row)
 
-def main():
-    board = [[" " for _ in range(3)] for _ in range(3)]
-    current_player = "X"
+class TicTacToe:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Tic Tac Toe")
+        self.board = [[" " for _ in range(3)] for _ in range(3)]
+        self.current_player = "X"
+        self.buttons = [[None for _ in range(3)] for _ in range(3)]
+        
+        self.info_label = tk.Label(root, text=f"Player {self.current_player}'s turn", font=("Arial", 14))
+        self.info_label.grid(row=0, column=0, columnspan=3, pady=10)
+        
+        for i in range(3):
+            for j in range(3):
+                btn = tk.Button(root, text=" ", font=("Arial", 24), width=5, height=2,
+                               command=lambda r=i, c=j: self.on_click(r, c))
+                btn.grid(row=i+1, column=j, padx=5, pady=5)
+                self.buttons[i][j] = btn
+        
+        self.reset_btn = tk.Button(root, text="Reset", command=self.reset_game)
+        self.reset_btn.grid(row=4, column=0, columnspan=3, pady=10)
     
-    while True:
-        print_board(board)
-        try:
-            row = int(input(f"Player {current_player}, enter row (0-2): "))
-            col = int(input(f"Player {current_player}, enter column (0-2): "))
-            if board[row][col] != " ":
-                print("Cell already taken. Try again.")
-                continue
-            board[row][col] = current_player
-        except (ValueError, IndexError):
-            print("Invalid input. Enter numbers 0-2.")
-            continue
+    def on_click(self, row, col):
+        if self.board[row][col] != " ":
+            messagebox.showwarning("Invalid", "Cell already taken!")
+            return
         
-        winner = check_winner(board)
+        self.board[row][col] = self.current_player
+        self.buttons[row][col].config(text=self.current_player)
+        
+        winner = check_winner(self.board)
         if winner:
-            print_board(board)
-            print(f"Player {winner} wins!")
-            break
-        if is_full(board):
-            print_board(board)
-            print("It's a tie!")
-            break
+            messagebox.showinfo("Winner", f"Player {winner} wins!")
+            self.reset_game()
+            return
         
-        current_player = "O" if current_player == "X" else "X"
+        if is_full(self.board):
+            messagebox.showinfo("Tie", "It's a tie!")
+            self.reset_game()
+            return
+        
+        self.current_player = "O" if self.current_player == "X" else "X"
+        self.info_label.config(text=f"Player {self.current_player}'s turn")
+    
+    def reset_game(self):
+        self.board = [[" " for _ in range(3)] for _ in range(3)]
+        self.current_player = "X"
+        self.info_label.config(text=f"Player {self.current_player}'s turn")
+        for i in range(3):
+            for j in range(3):
+                self.buttons[i][j].config(text=" ")
 
 if __name__ == "__main__":
-    main()
+    root = tk.Tk()
+    game = TicTacToe(root)
+    root.mainloop()
