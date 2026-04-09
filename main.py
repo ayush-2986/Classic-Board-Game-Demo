@@ -1,5 +1,8 @@
-import tkinter as tk
+import customtkinter as ctk
 from tkinter import messagebox
+
+ctk.set_appearance_mode("system")
+ctk.set_default_color_theme("blue")
 
 def check_winner(board):
     for i in range(3):
@@ -20,22 +23,59 @@ class TicTacToe:
     def __init__(self, root):
         self.root = root
         self.root.title("Tic Tac Toe")
+        self.root.geometry("500x600")
+        
         self.board = [[" " for _ in range(3)] for _ in range(3)]
         self.current_player = "X"
         self.buttons = [[None for _ in range(3)] for _ in range(3)]
         
-        self.info_label = tk.Label(root, text=f"Player {self.current_player}'s turn", font=("Arial", 14))
-        self.info_label.grid(row=0, column=0, columnspan=3, pady=10)
+        self.setup_ui()
+    
+    def setup_ui(self):
+        main_frame = ctk.CTkFrame(self.root)
+        main_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        title_label = ctk.CTkLabel(
+            main_frame,
+            text="Tic Tac Toe",
+            font=("Segoe UI", 32, "bold")
+        )
+        title_label.pack(pady=20)
+        
+        self.info_label = ctk.CTkLabel(
+            main_frame,
+            text=f"Player {self.current_player}'s turn",
+            font=("Segoe UI", 16)
+        )
+        self.info_label.pack(pady=10)
+        
+        board_frame = ctk.CTkFrame(main_frame)
+        board_frame.pack(pady=20)
         
         for i in range(3):
             for j in range(3):
-                btn = tk.Button(root, text=" ", font=("Arial", 24), width=5, height=2,
-                               command=lambda r=i, c=j: self.on_click(r, c))
-                btn.grid(row=i+1, column=j, padx=5, pady=5)
+                btn = ctk.CTkButton(
+                    board_frame,
+                    text=" ",
+                    font=("Segoe UI", 48, "bold"),
+                    width=80,
+                    height=80,
+                    command=lambda r=i, c=j: self.on_click(r, c)
+                )
+                btn.grid(row=i, column=j, padx=5, pady=5)
                 self.buttons[i][j] = btn
         
-        self.reset_btn = tk.Button(root, text="Reset", command=self.reset_game)
-        self.reset_btn.grid(row=4, column=0, columnspan=3, pady=10)
+        button_frame = ctk.CTkFrame(main_frame)
+        button_frame.pack(fill="x", pady=20)
+        
+        reset_btn = ctk.CTkButton(
+            button_frame,
+            text="Reset Game",
+            command=self.reset_game,
+            font=("Segoe UI", 14),
+            height=40
+        )
+        reset_btn.pack(fill="x")
     
     def on_click(self, row, col):
         if self.board[row][col] != " ":
@@ -43,7 +83,7 @@ class TicTacToe:
             return
         
         self.board[row][col] = self.current_player
-        self.buttons[row][col].config(text=self.current_player)
+        self.buttons[row][col].configure(text=self.current_player)
         
         winner = check_winner(self.board)
         if winner:
@@ -57,17 +97,17 @@ class TicTacToe:
             return
         
         self.current_player = "O" if self.current_player == "X" else "X"
-        self.info_label.config(text=f"Player {self.current_player}'s turn")
+        self.info_label.configure(text=f"Player {self.current_player}'s turn")
     
     def reset_game(self):
         self.board = [[" " for _ in range(3)] for _ in range(3)]
         self.current_player = "X"
-        self.info_label.config(text=f"Player {self.current_player}'s turn")
+        self.info_label.configure(text=f"Player {self.current_player}'s turn")
         for i in range(3):
             for j in range(3):
-                self.buttons[i][j].config(text=" ")
+                self.buttons[i][j].configure(text=" ")
 
 if __name__ == "__main__":
-    root = tk.Tk()
+    root = ctk.CTk()
     game = TicTacToe(root)
     root.mainloop()
